@@ -222,9 +222,29 @@ print(conf_matrix_xgb)
 roc_rf <- roc(as.numeric(test_data$is_canceled) - 1, as.numeric(rf_pred))
 roc_xgb <- roc(as.numeric(test_data$is_canceled) - 1, xgb_pred_prob)
 
-plot(roc_rf, col = "blue", main = "ROC Comparison")
-plot(roc_xgb, col = "red", add = TRUE)
-legend("bottomright", legend = c("Random Forest", "XGBoost"), col = c("blue", "red"), lty = 1)
+
+roc_rf_df <- data.frame(TPR = rev(roc_rf$sensitivities), 
+                        FPR = rev(1 - roc_rf$specificities), 
+                        Model = "Random Forest")
+
+roc_xgb_df <- data.frame(TPR = rev(roc_xgb$sensitivities), 
+                         FPR = rev(1 - roc_xgb$specificities), 
+                         Model = "XGBoost")
+
+roc_data <- rbind(roc_rf_df, roc_xgb_df)
+
+# ROC
+roc_plot <- ggplot(roc_data, aes(x = FPR, y = TPR, color = Model)) +
+  geom_line(size = 1.2) +  
+  geom_abline(linetype = "dashed", color = "gray") +
+  theme_minimal() +
+  labs(title = "ROC Comparison", x = "1 - Specificity (FPR)", y = "Sensitivity (TPR)") +
+  scale_color_manual(values = c("blue", "red"))  
+
+print(roc_plot)
+
+ggsave("roc_comparison.png", plot = roc_plot, width = 6, height = 4, dpi = 300)
+
 
 auc_rf <- auc(roc_rf)
 auc_xgb <- auc(roc_xgb)
