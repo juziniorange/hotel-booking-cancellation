@@ -232,4 +232,9 @@ auc_xgb <- auc(roc_xgb)
 cat("Random Forest AUC Score:", round(auc_rf, 4), "\n")
 cat("XGBoost AUC Score:", round(auc_xgb, 4), "\n")
 
-
+ggplot(roc_data, aes(x = FPR, y = TPR, color = Model)) +
+  geom_line(size = 1) +
+  geom_abline(linetype = "dashed") +
+  theme_minimal() +
+  labs(title = "ROC Comparison", x = "1 - Specificity", y = "Sensitivity") +
+  scale_color_manual(values = c("blue", "red"))
